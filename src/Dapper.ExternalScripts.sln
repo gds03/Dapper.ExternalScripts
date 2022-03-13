@@ -13,6 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales", "Sample\Sales\Sales
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreApi", "sample\AspNetCoreApi\AspNetCoreApi.csproj", "{AC5C84F8-15E9-414C-AD8A-85F01D0E7F96}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DB", "DB", "{80EC03AA-1FB1-4309-B624-67F1C0346F3E}"
+	ProjectSection(SolutionItems) = preProject
+		Sample\SalesDB.sql = Sample\SalesDB.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +47,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{4AD1F4EC-955E-4FA0-BC5D-105CE7B5C42A} = {FE950D91-35F9-4843-B9A0-6AA631952295}
 		{AC5C84F8-15E9-414C-AD8A-85F01D0E7F96} = {FE950D91-35F9-4843-B9A0-6AA631952295}
+		{80EC03AA-1FB1-4309-B624-67F1C0346F3E} = {FE950D91-35F9-4843-B9A0-6AA631952295}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F7206A48-BFAD-4D66-836C-D5EF39EE7E3B}

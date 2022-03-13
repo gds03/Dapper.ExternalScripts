@@ -16,4 +16,20 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Dapper.ExternalScripts\Dapper.ExternalScripts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Features\Products\AppendProduct\SQL\InsertOneProduct.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Features\Products\DisplayProducts\SQL\GetOne.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Features\Products\DisplayProducts\SQL\GetAll.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

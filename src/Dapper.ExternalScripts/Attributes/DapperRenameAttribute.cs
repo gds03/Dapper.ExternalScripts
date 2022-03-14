@@ -16,8 +16,20 @@ public class DapperRenameAttribute : Attribute
         if (string.IsNullOrEmpty(fileExtension))
             throw new ArgumentException(nameof(fileExtension));
 
-        if (fileName.Trim().ToCharArray().Any(c => char.IsWhiteSpace(c)))
-            throw new InvalidOperationException($"route can't contain spaces.");
+        var fileNameChars = fileName.Trim().ToCharArray();
+
+        if (fileNameChars.Any(c => char.IsWhiteSpace(c)))
+            throw new InvalidOperationException($"{nameof(fileName)} can't contain spaces.");
+
+        if (fileNameChars.Any(c => c == '/' || c == '\\'))
+            throw new InvalidOperationException($"{nameof(fileName)} can't contain any '\' or '/' characters");
+
+
+        var fileExtensionChars = fileExtension.Trim().ToCharArray();
+        if (fileExtensionChars.Any(c => char.IsWhiteSpace(c)))
+            throw new InvalidOperationException($"{nameof(fileExtension)} can't contain spaces.");
+        if (fileExtensionChars.Any(c => c == '/' || c == '\\' || c == '.'))
+            throw new InvalidOperationException($"{nameof(fileExtension)} can't contain any '\\' or '/' or '.' characters");
 
         this.FileName = fileName;
         this.FileExtension = fileExtension;

@@ -23,7 +23,7 @@ public class DisplayProductsQueries
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await connection.QueryAsync<DisplayProductVM>(scriptFinder.GetScript());
+        return await connection.QueryAsync<DisplayProductVM>(scriptFinder.GetCurrentScript());
     }
 
     [DapperRename("GetOne")]
@@ -31,6 +31,6 @@ public class DisplayProductsQueries
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await connection.QuerySingleAsync<DisplayProductVM>(scriptFinder.GetScript(), new { id = id });
+        return await connection.QuerySingleAsync<DisplayProductVM>(scriptFinder.GetCurrentScript(), new { id = id });
     }
 }

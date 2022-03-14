@@ -23,6 +23,6 @@ public class AppendProductCommands
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await connection.ExecuteAsync(scriptFinder.GetScript(), new { Name = name, quantity = quantity });
+        return await connection.ExecuteAsync(scriptFinder.GetCurrentScript(), new { Name = name, quantity = quantity });
     }
 }

@@ -53,7 +53,7 @@ public class ExternalFileFinder<TSource> : IExternalFileFinder<TSource>
         _map = map;
     }
 
-    public string GetScript([CallerMemberName] string? methodName = null)
+    public string GetCurrentScript([CallerMemberName] string? methodName = null)
     {
         if (!_map.TryGetValue(methodName!, out var value))
             throw new InvalidOperationException($"can't find method name {methodName} in the cache");

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Dapper.ExternalScripts\Dapper.ExternalScripts.csproj" />
     <ProjectReference Include="..\Sales\Sales.csproj" />
   </ItemGroup>
 

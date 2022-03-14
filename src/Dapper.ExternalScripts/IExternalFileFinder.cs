@@ -8,5 +8,5 @@ namespace Dapper.ExternalScripts;
 /// <typeparam name="TSource"></typeparam>
 public interface IExternalFileFinder<TSource>
 {
-    string GetScript([CallerMemberName] string? methodName = null);
+    string GetCurrentScript([CallerMemberName] string? methodName = null);
 }

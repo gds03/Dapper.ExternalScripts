@@ -48,5 +48,3 @@ public class DisplayProductsQueries
 
 The way its working is similiar with ILogger<T>. It's registered as a singleton and the first time the type is referenced (in this case: IExternalFileFinder<DisplayProductsQueries>) it will load from the FS.
 From there on, the script is in the cache and thats all.
-  
-```

@@ -26,4 +26,14 @@
     <ProjectReference Include="..\..\src\Dapper.ExternalScripts\Dapper.ExternalScripts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SQLFiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="SQLFiles\Products\GetAll.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

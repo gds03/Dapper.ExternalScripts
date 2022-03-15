@@ -47,14 +47,14 @@ public class DisplayProductsQueries
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await scriptFinder._((sql) => connection.QueryAsync<DisplayProductVM>(sql)); // instead of hardcoded SQL it already loaded GetAll.sql from the folder above
+        return await scriptFinder._((sql) => connection.QueryAsync<DisplayProductVM>(sql)); // instead of hardcoded SQL it already loaded GetAll.sql from the folder configured on the startup
     }
 
     public async Task<DisplayProductVM> GetSingle(int id)
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await scriptFinder._(sql => connection.QuerySingleAsync<DisplayProductVM>(sql, new { id = id })); // instead of hardcoded SQL it already loaded GetOne.sql from the folder above
+        return await scriptFinder._(sql => connection.QuerySingleAsync<DisplayProductVM>(sql, new { id = id })); // instead of hardcoded SQL it already loaded GetOne.sql from the folder configured on the startup
     }
 }
 

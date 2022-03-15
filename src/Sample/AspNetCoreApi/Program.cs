@@ -15,7 +15,7 @@ builder.Services.AddDapperExternalScripts(options =>
         {
             x
                 .SetRoute("Features/Products/DisplayProducts/SQL")
-                .SetScriptsExtension("sql")
+               // .SetScriptsExtension("sql")
                 .AutoMap()
                 .Rename("GetSingle", "GetOne");
         })

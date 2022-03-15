@@ -7,6 +7,11 @@ public class ScriptFinderGlobalConfiguration
     {
         ScriptFinderTypeConfiguration<TSource> config = new ScriptFinderTypeConfiguration<TSource>();
         source(config);
+        
+        if(!config.IsValid(out string errors))
+        {
+            throw new InvalidOperationException($"Invalid configuration. Errors are: " + errors);
+        }
         _mapConfigurations.Add(typeof(TSource), config);
         return this;
     }

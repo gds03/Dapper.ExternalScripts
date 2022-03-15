@@ -25,17 +25,14 @@ public static class ConfigureServices
                 {
                     x
                         .SetRoute("Features/Products/DisplayProducts/SQL")
-                        .SetScriptsExtension("sql")
-                        .AutoMap()
-                        .Rename("GetSingle", "GetOne");
+                        .Rename(nameof(DisplayProductsQueries.GetSingle), "GetOne")
+                        .SetExtension(nameof(DisplayProductsQueries.GetAll), "sql");
                 })
                 .Configure<AppendProductCommands>(x =>
                 {
                     x
                         .SetRoute("Features/Products/AppendProduct/SQL")
-                        .SetScriptsExtension("sql")
-                        .AutoMap()
-                        .Rename("Insert", "InsertOneProduct");
+                        .Rename(nameof(AppendProductCommands.Insert), "InsertOneProduct");
                 })
 
         );

@@ -50,10 +50,12 @@ public class ScriptFinder<TSource> : IScriptFinder<TSource>
 
         foreach(var methodKVP in typeConfiguration.MethodMaps)
         {
-            var fileName = methodKVP.Value;
-            var fileExtension = typeConfiguration.ScriptsExtension;
+            var entry = methodKVP.Value;
 
-            Exception? fileException = GetFileContentsForMethod(GetFilePath(directoryPath, fileName, fileExtension!), out var fileContents);
+            var fileName = entry.RenamedName;
+            var fileExtension = entry.Extension;
+
+            Exception? fileException = GetFileContentsForMethod(GetFilePath(directoryPath, fileName!, fileExtension!), out var fileContents);
             if (fileException != null)
                 exceptionsList.Add(fileException);
 

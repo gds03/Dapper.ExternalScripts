@@ -28,6 +28,6 @@ public class DisplayProductsQueries
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await connection.QuerySingleAsync<DisplayProductVM>(scriptFinder.GetCurrentScript(), new { id = id });
+        return await scriptFinder._(sql => connection.QuerySingleAsync<DisplayProductVM>(sql, new { id = id }));
     }
 }

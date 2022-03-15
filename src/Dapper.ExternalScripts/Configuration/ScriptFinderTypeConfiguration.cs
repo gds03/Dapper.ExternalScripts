@@ -1,13 +1,19 @@
-﻿using System.Data;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 
 namespace Dapper.ExternalScripts.Configuration;
+
 public class ScriptFinderTypeConfiguration<TSource>
 {
     public string? Route { get; private set; }
-    public string? ScriptsExtension { get; private set; }
-    public Dictionary<string, string> MethodMaps { get; private set; } = new Dictionary<string, string>();
+    public Dictionary<string, TypeMethodConfiguration> MethodMaps { get; private set; } = new Dictionary<string, TypeMethodConfiguration>();
+
+
+
+    public ScriptFinderTypeConfiguration()
+    {
+        MethodMaps = this.GetMethodMappings();
+    }
 
 
 
@@ -20,38 +26,39 @@ public class ScriptFinderTypeConfiguration<TSource>
         return this;
     }
 
-    public ScriptFinderTypeConfiguration<TSource> SetScriptsExtension(string extension)
+
+    public ScriptFinderTypeConfiguration<TSource> SetExtension(string fromMethodName, string extension)
     {
+        if (string.IsNullOrWhiteSpace(fromMethodName))
+            throw new ArgumentException($"{nameof(fromMethodName)} can't be empty.");
+
         if (string.IsNullOrWhiteSpace(extension))
-            throw new ArgumentException($"{nameof(extension)} can't be empty");
+            throw new ArgumentException($"{nameof(extension)} can't be empty.");
 
-        ScriptsExtension = extension;
+        if (!MethodMaps.TryGetValue(fromMethodName, out var entry))
+            throw new InvalidOperationException($"'{fromMethodName}' method do not exists");
+
+
+        entry.Extension = extension;
         return this;
     }
 
-    public ScriptFinderTypeConfiguration<TSource> AutoMap()
+    public ScriptFinderTypeConfiguration<TSource> Rename(string fromMethodName, string toFileName, string? extension = null)
     {
-        foreach (var method in typeof(TSource).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
-        {
-            var methodName = method.Name;
-            MethodMaps[methodName] = methodName;
-        }
+        if (string.IsNullOrWhiteSpace(fromMethodName))
+            throw new ArgumentException($"{nameof(fromMethodName)} can't be empty.");
 
-        return this;
-    }
+        if (string.IsNullOrWhiteSpace(toFileName))
+            throw new ArgumentException($"{nameof(toFileName)} can't be empty.");
 
-    public ScriptFinderTypeConfiguration<TSource> Rename(string from, string to)
-    {
-        if (string.IsNullOrWhiteSpace(from))
-            throw new ArgumentException($"{nameof(from)} can't be empty.");
+        if (!MethodMaps.TryGetValue(fromMethodName, out var entry))
+            throw new InvalidOperationException($"'{fromMethodName}' method do not exists");
 
-        if (string.IsNullOrWhiteSpace(to))
-            throw new ArgumentException($"{nameof(to)} can't be empty.");
+        entry.RenamedName = toFileName;
 
-        if (!MethodMaps.ContainsKey(from))
-            throw new InvalidOperationException($"{nameof(from)} is not mapped. Are you forgetting to call {nameof(AutoMap)}?");
+        if(!string.IsNullOrWhiteSpace(extension))
+            entry.Extension = extension;
 
-        MethodMaps[from] = to;
         return this;
     }
 
@@ -62,17 +69,26 @@ public class ScriptFinderTypeConfiguration<TSource>
         if (!IsRouteValid(out var routeErrors))
             errors.AppendLine(routeErrors);
 
-        if (!IsScriptsExtensionValid(out var scriptsExtensionErrors))
-            errors.AppendLine(scriptsExtensionErrors);
-
-        if (!AreRenamesValid(out var renamesErrors))
-            errors.AppendLine(renamesErrors);
+        if (!AreMappingsValid(out var mappingErrors))
+            errors.AppendLine(mappingErrors);
 
         errorMsg = errors.ToString();
         return string.IsNullOrEmpty(errorMsg);
     }
 
     #region Helpers
+
+    private Dictionary<string, TypeMethodConfiguration> GetMethodMappings()
+    {
+        var map = new Dictionary<string, TypeMethodConfiguration>();
+        foreach (var method in typeof(TSource).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        {
+            var methodName = method.Name;
+            map[methodName] = new TypeMethodConfiguration() { RenamedName = methodName };
+        }
+
+        return map;
+    }
 
     private bool IsRouteValid(out string errors)
     {
@@ -102,40 +118,28 @@ public class ScriptFinderTypeConfiguration<TSource>
         return string.IsNullOrEmpty(errors);
     }
 
-    private bool IsScriptsExtensionValid(out string errors)
+    public bool AreMappingsValid(out string errors)
     {
         StringBuilder s = new();
 
-        if (string.IsNullOrWhiteSpace(ScriptsExtension))
-            s.AppendLine($"{nameof(ScriptsExtension)} can't be empty");
-
-        else
+        foreach (var entry in MethodMaps.Values)
         {
-            var scriptsExtensionChars = ScriptsExtension!.Trim().ToCharArray();
-            if (scriptsExtensionChars.Any(c => char.IsWhiteSpace(c)))
-                s.AppendLine($"{nameof(ScriptsExtension)} can't contain spaces.");
-
-            if (scriptsExtensionChars.Any(c => c == '/' || c == '\\' || c == '.'))
-                s.AppendLine($"{nameof(ScriptsExtension)} can't contain any '\\' or '/' or '.' characters");
-        }
-
-        errors = s.ToString();
-        return string.IsNullOrEmpty(errors);
-    }
-
-    public bool AreRenamesValid(out string errors)
-    {
-        StringBuilder s = new();
-
-        foreach (var to in MethodMaps.Values)
-        {
-            var fileNameChars = to.Trim().ToCharArray();
+            var renamed = entry.RenamedName!;
+            var fileNameChars = renamed.Trim().ToCharArray();
 
             if (fileNameChars.Any(c => char.IsWhiteSpace(c)))
-                s.AppendLine($"{nameof(to)} can't contain spaces.");
+                s.AppendLine($"{nameof(renamed)} can't contain spaces.");
 
             if (fileNameChars.Any(c => c == '/' || c == '\\'))
-                s.AppendLine($"{nameof(to)} can't contain any '\' or '/' characters");
+                s.AppendLine($"{nameof(renamed)} can't contain any '\' or '/' characters");
+
+
+            var extensionChars = entry.Extension!.Trim().ToCharArray();
+            if (extensionChars.Any(c => char.IsWhiteSpace(c)))
+                s.AppendLine($"{nameof(entry.Extension)} can't contain spaces.");
+
+            if (extensionChars.Any(c => c == '/' || c == '\\' || c == '.'))
+                s.AppendLine($"{nameof(entry.Extension)} can't contain any '\\' or '/' or '.' characters");
         }
 
         errors = s.ToString();

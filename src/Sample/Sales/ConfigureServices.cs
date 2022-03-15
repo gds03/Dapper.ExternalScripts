@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Dapper.ExternalScripts;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Sales.Features.Products.AppendProduct;
@@ -16,5 +18,26 @@ public static class ConfigureServices
         {
             Value = di.GetRequiredService<IConfiguration>().GetConnectionString("default")
         });
+
+        serviceCollection.AddDapperExternalScripts(options =>
+            options
+                .Configure<DisplayProductsQueries>(x =>
+                {
+                    x
+                        .SetRoute("Features/Products/DisplayProducts/SQL")
+                        .SetScriptsExtension("sql")
+                        .AutoMap()
+                        .Rename("GetSingle", "GetOne");
+                })
+                .Configure<AppendProductCommands>(x =>
+                {
+                    x
+                        .SetRoute("Features/Products/AppendProduct/SQL")
+                        .SetScriptsExtension("sql")
+                        .AutoMap()
+                        .Rename("Insert", "InsertOneProduct");
+                })
+
+        );
     }
 }

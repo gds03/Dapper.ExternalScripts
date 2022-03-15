@@ -1,12 +1,11 @@
-﻿using Dapper.ExternalScripts;
-using Dapper.ExternalScripts.Configuration;
+﻿using Dapper.ExternalScripts.Configuration;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dapper.Conventions;
+namespace Dapper.ExternalScripts;
 public static class ServiceCollectionsExtensions
 {
-    public static IServiceCollection AddDapperExternalScripts(this IServiceCollection services, 
+    public static IServiceCollection AddDapperExternalScripts(this IServiceCollection services,
         Action<ScriptFinderGlobalConfiguration> configurationCallback)
     {
         services.AddSingleton(typeof(IScriptFinder<>), typeof(ScriptFinder<>));
@@ -15,7 +14,7 @@ public static class ServiceCollectionsExtensions
         var cfg = new ScriptFinderGlobalConfiguration();
         configurationCallback(cfg);
 
-        services.AddSingleton<ScriptFinderGlobalConfiguration>(cfg);
+        services.AddSingleton(cfg);
 
         return services;
     }

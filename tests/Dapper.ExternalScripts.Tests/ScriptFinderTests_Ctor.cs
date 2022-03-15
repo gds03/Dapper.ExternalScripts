@@ -1,93 +1,85 @@
-﻿//using Shouldly;
+﻿using Dapper.ExternalScripts.Configuration;
+using Dapper.ExternalScripts.Tests.ModelsToTest;
 
-//using System;
-//using System.IO;
+using Shouldly;
 
-//using Xunit;
+using System;
+using System.IO;
+using System.Linq;
 
-//namespace Dapper.ExternalScripts.Tests;
-//public class ScriptFinderTests_Ctor
-//{
-//    //
-    
+using Xunit;
 
-//    [Fact]
-//    public void ScriptFinder_Ctor_Should_Throw_InvalidOperationException_When_TypeIsntMarked_With_DapperSearchRouteAttribute()
-//    {
-//        Action act = () => new ScriptFinder<SomeQueriesWillNotWorkBecauseAreNOTAnnotated>();
+namespace Dapper.ExternalScripts.Tests;
+public class ScriptFinderTests_Ctor
+{
+    [Fact]
+    public void ScriptFinder_Ctor_Should_Throw_InvalidOperationException_When_GlobalConfiguration_isNull()
+    {
+        Action act = () => new ScriptFinder<OneMethod>(null);
 
-//        act.ShouldThrow<InvalidOperationException>().Message.ShouldContain("To use this service please Mark");
-//    }
+        act.ShouldThrow<InvalidOperationException>().Message.ShouldContain("There is no configuration for type");
+    }
 
+    [Fact]
+    public void ScriptFinder_Ctor_Should_Throw_InvalidOperationException_When_GlobalConfiguration_HasNoSubtypeConfigured()
+    {
+        Action act = () => new ScriptFinder<OneMethod>(new ScriptFinderGlobalConfiguration());
 
+        act.ShouldThrow<InvalidOperationException>().Message.ShouldContain("There is no configuration for type");
+    }
 
+    [Fact]
+    public void ScriptFinder_Ctor_Should_Throw_DirectoryNotFoundException()
+    {
+        ScriptFinderGlobalConfiguration globalConfiguration = new ScriptFinderGlobalConfiguration();
 
-//    //
+        globalConfiguration.Configure<OneMethod>(x =>
+        {
+            x.SetRoute("SQLFiles/NOTFOUND/");
+        });
 
-//    [Fact]
-//    public void ScriptFinder_Ctor_Should_Throw_DirectoryNotFoundException_When_DirectoryDontExists()
-//    {
-//        Action act = () => new ScriptFinder<SomeQueriesWillNotWorkBecauseDirectoryDontExists>();
+        Action act = () => new ScriptFinder<OneMethod>(globalConfiguration);
 
-//        act.ShouldThrow<DirectoryNotFoundException>().Message.ShouldContain("does not exists");
-//    }
-
-
-
-
-
-//    //
-
-//    [Fact]
-//    public void ScriptFinder_Ctor_Should_Throw_AggregateException_Due_FilesNotFound()
-//    {
-//        var act = () => new ScriptFinder<ProductQueriesWithNoFilesForMethods>();
-
-//        act.ShouldThrow<AggregateException>()
-//            .InnerExceptions
-//            .Count
-//            .ShouldBe(1);
-//    }
+        act.ShouldThrow<DirectoryNotFoundException>()
+            .Message
+            .ShouldContain("does not exists");
+    }
 
 
-//    //
+    [Fact]
+    public void ScriptFinder_Ctor_Should_Throw_FileNotFoundException()
+    {
+        ScriptFinderGlobalConfiguration globalConfiguration = new ScriptFinderGlobalConfiguration();
 
-//    [Fact]
-//    public void ScriptFinder_Ctor_Should_Throw_AggregateException_Due_DuplicatedMethodNames()
-//    {
-//        var act = () => new ScriptFinder<ProductQueriesWithDuplicatedMethodNames>();
+        globalConfiguration.Configure<OneMethod>(x =>
+        {
+            x
+                .SetRoute("SQLFiles/products/")
+                .SetExtension("GetAll", "mongo");
+        });
 
-//        act.ShouldThrow<AggregateException>()
-//            .InnerExceptions
-//            .Count
-//            .ShouldBe(1);
-//    }
+        Action act = () => new ScriptFinder<OneMethod>(globalConfiguration);
 
+        act.ShouldThrow<AggregateException>()
+            .InnerExceptions
+            .ToList()
+            .Select(x => x.Message)
+            .Any(msg => msg.Contains("not find file"))
+            .ShouldBeTrue();
+    }
 
+    [Fact]
+    public void ScriptFinder_Ctor_Should_InitializeSuccessfully()
+    {
+        ScriptFinderGlobalConfiguration globalConfiguration = new ScriptFinderGlobalConfiguration();
 
-//    //
- 
-//    [Fact]
-//    public void ScriptFinder_Ctor_Should_Initialize_Successfully_RenamingAttributeFindingTheScriptFile()
-//    {
-//        var act = () => new ScriptFinder<ProductQueriesRenamedMethod>();
+        globalConfiguration.Configure<OneMethod>(x =>
+        {
+            x.SetRoute("SQLFiles/products/");
+        });
 
-//        var fileFinder = act.ShouldNotThrow();
+        var instance = new ScriptFinder<OneMethod>(globalConfiguration);
 
-//        fileFinder.ShouldNotBeNull();
-//    }
-
-
-
-//    //
- 
-//    [Fact]
-//    public void ScriptFinder_Ctor_Should_Initialize_Successfully()
-//    {
-//        var act = () => new ScriptFinder<ProductQueries>();
-
-//        var fileFinder = act.ShouldNotThrow();
-
-//        fileFinder.ShouldNotBeNull();
-//    }
-//}
+        instance.ShouldNotBeNull();
+    }
+}

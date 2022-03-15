@@ -61,7 +61,7 @@ public class ScriptFinder<TSource> : IScriptFinder<TSource>
 
             else
                 if (!TryAdd(map, methodKVP.Key, fileContents!, out Exception? exception))
-                exceptionsList.Add(exception!);
+                    exceptionsList.Add(exception!);
 
         }
 

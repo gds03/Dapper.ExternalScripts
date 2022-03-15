@@ -27,10 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="SQLFiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Update="SQLFiles\Products\GetOne.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SQLFiles\Products\GetAllByText.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SQLFiles\Products\GetAll.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

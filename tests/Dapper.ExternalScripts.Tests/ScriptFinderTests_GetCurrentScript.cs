@@ -1,37 +1,58 @@
-﻿//using AutoFixture;
+﻿
+using Dapper.ExternalScripts.Configuration;
+using Dapper.ExternalScripts.Tests.ModelsToTest;
 
-//using Shouldly;
+using Shouldly;
 
-//using System;
-//using System.IO;
+using System;
+using System.IO;
 
-//using Xunit;
+using Xunit;
 
-//using static Dapper.ExternalScripts.Tests.ScriptFinderTests_Ctor;
+namespace Dapper.ExternalScripts.Tests;
+public class ScriptFinderTests_GetCurrentScript
+{
+    [Fact]
+    public void ScriptFinder_GetCurrentScript_Should_ThrowInvalidOperationException()
+    {
+        ScriptFinderGlobalConfiguration globalConfiguration = new ScriptFinderGlobalConfiguration();
 
-//namespace Dapper.ExternalScripts.Tests;
-//public class ScriptFinderTests_GetCurrentScript
-//{
-//    private readonly Fixture fixture = new Fixture();
+        globalConfiguration.Configure<ThreeMethods>(x =>
+        {
+            x
+                .SetRoute("SQLFiles/products/")
+                .Rename("GetSingle", "GetOne");
+        });
 
-//    [Fact]
-//    public void ScriptFinder_GetCurrentScript_Should_ThrowInvalidOperationException_When_MethodName_NotFound()
-//    {
-//        ScriptFinder<ProductQueries> scriptFinder = new ScriptFinder<ProductQueries>();
 
-//        var act = () => scriptFinder.GetCurrentScript(fixture.Create<string>());
+        var instance = new ScriptFinder<ThreeMethods>(globalConfiguration);
+        Action act = () => instance.GetCurrentScript("random");
 
-//        act.ShouldThrow<InvalidOperationException>().Message.ShouldContain("can't find method name");
-//    }
+        act.ShouldThrow<InvalidOperationException>()
+            .Message
+            .ShouldContain("can't find method name");
+    }
 
-//    [Fact]
-//    public void ScriptFinder_GetCurrentScript_Should_ReturnSuccessfully()
-//    {
-//        ScriptFinder<ProductQueries> scriptFinder = new ScriptFinder<ProductQueries>();
+    [Fact]
+    public void ScriptFinder_GetCurrentScript_Should_ReturnSuccessfully()
+    {
+        ScriptFinderGlobalConfiguration globalConfiguration = new ScriptFinderGlobalConfiguration();
 
-//        var text = () => scriptFinder.GetCurrentScript(nameof(ProductQueries.GetAll));
+        globalConfiguration.Configure<ThreeMethods>(x =>
+        {
+            x
+                .SetRoute("SQLFiles/products/")
+                .Rename("GetSingle", "GetOne");
+        });
 
-//        text.ShouldNotThrow();
-//        text().ShouldBe(File.ReadAllText("SQLFiles\\Products\\GetAll.sql"));
-//    }
-//}
+
+        var instance = new ScriptFinder<ThreeMethods>(globalConfiguration);
+        var getAllScript = instance.GetCurrentScript(nameof(ThreeMethods.GetAll));
+        getAllScript.ShouldBe(File.ReadAllText("SQLFiles\\Products\\GetAll.sql"));
+
+        var getAllByTextScript = instance.GetCurrentScript(nameof(ThreeMethods.GetAllByText));
+        getAllByTextScript.ShouldBe(File.ReadAllText("SQLFiles\\Products\\GetAllByText.sql"));
+        var getOneTextScript = instance.GetCurrentScript(nameof(ThreeMethods.GetSingle));
+        getOneTextScript.ShouldBe(File.ReadAllText("SQLFiles\\Products\\GetOne.sql"));
+    }
+}

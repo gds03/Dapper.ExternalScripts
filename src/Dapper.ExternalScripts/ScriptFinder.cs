@@ -1,20 +1,20 @@
 ﻿using Dapper.ExternalScripts.Attributes;
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Dapper.ExternalScripts;
 
-
-public class ExternalFileFinder<TSource> : IExternalFileFinder<TSource>
+public class ScriptFinder<TSource> : IScriptFinder<TSource>
 {
     private readonly Dictionary<string, string> _map;
 
-    public ExternalFileFinder()
+    public ScriptFinder()
     {
-        var dapperPathAttribute = typeof(TSource).GetCustomAttribute<DapperSearchRouteAttribute>();
+        var dapperPathAttribute = typeof(TSource).GetCustomAttribute<ScriptRouteAttribute>();
         if (dapperPathAttribute == null)
-            throw new InvalidOperationException($"To use this service please Mark {typeof(TSource).Name} class with {typeof(DapperSearchRouteAttribute).Name} attribute and define a location for the scripts");
+            throw new InvalidOperationException($"To use this service please Mark {typeof(TSource).Name} class with {typeof(ScriptRouteAttribute).Name} attribute and define a location for the scripts");
 
         string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dapperPathAttribute.Route.Replace("/", "\\"));
         if (!Directory.Exists(directoryPath))
@@ -31,7 +31,7 @@ public class ExternalFileFinder<TSource> : IExternalFileFinder<TSource>
         {
             var fileName = method.Name;
             var extension = "sql";
-            var dapperRenameAttribute = method.GetCustomAttribute<DapperRenameAttribute>();
+            var dapperRenameAttribute = method.GetCustomAttribute<ScriptRenameAttribute>();
             if(dapperRenameAttribute != null)
             {
                 fileName = dapperRenameAttribute.FileName;
@@ -59,6 +59,12 @@ public class ExternalFileFinder<TSource> : IExternalFileFinder<TSource>
             throw new InvalidOperationException($"can't find method name {methodName} in the cache");
 
         return value;
+}
+
+    public TResult _<TResult>(Func2<TResult> callback, [CallerMemberName] string? methodName = null)
+    {
+        string script = this.GetCurrentScript(methodName);
+        return callback(script);
     }
 
     #region Helpers

@@ -4,11 +4,11 @@
 ///     Allows the renaming of filenames and extensions per method
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public class DapperRenameAttribute : Attribute
+public class ScriptRenameAttribute : Attribute
 {
     public string FileName { get; }
     public string FileExtension { get; }
-    public DapperRenameAttribute(string fileName, string fileExtension = "sql")
+    public ScriptRenameAttribute(string fileName, string fileExtension = "sql")
     {
         if (string.IsNullOrEmpty(fileName))
             throw new ArgumentException(nameof(fileName));

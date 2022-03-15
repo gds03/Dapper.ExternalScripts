@@ -6,5 +6,5 @@ namespace Dapper.Conventions;
 public static class ServiceCollectionsExtensions
 {
     public static IServiceCollection AddDapperExternalScripts(this IServiceCollection services) =>
-        services.AddSingleton(typeof(IExternalFileFinder<>), typeof(ExternalFileFinder<>));
+        services.AddSingleton(typeof(IScriptFinder<>), typeof(ScriptFinder<>));
 }

@@ -3,11 +3,11 @@
 ///     Marks and specifies the location for the service to look for the files.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public class DapperSearchRouteAttribute : Attribute
+public class ScriptRouteAttribute : Attribute
 {
     public string Route { get; }
 
-    public DapperSearchRouteAttribute(string route)
+    public ScriptRouteAttribute(string route)
     {
         if (string.IsNullOrEmpty(route))
             throw new ArgumentException(nameof(route));

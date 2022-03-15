@@ -8,17 +8,17 @@ using System;
 using Xunit;
 
 namespace Dapper.ExternalScripts.Tests.Attributes;
-public class DapperRenameAttributeTests
+public class ScriptRenameAttributeTests
 {
     private readonly Fixture fixture = new();
 
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void DapperRenameAttribute_Ctor_Should_Throw_ArgumentException_When_Filename_NullOrEmpty(string filename)
+    public void ScriptRenameAttribute_Ctor_Should_Throw_ArgumentException_When_Filename_NullOrEmpty(string filename)
     {
         //arrange & act
-        Action act = () => new DapperRenameAttribute(filename);
+        Action act = () => new ScriptRenameAttribute(filename);
 
         act.ShouldThrow<ArgumentException>().Message.ShouldBe("fileName");
     }
@@ -26,20 +26,20 @@ public class DapperRenameAttributeTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void DapperRenameAttribute_Ctor_Should_Throw_ArgumentException_When_FileExtension_NullOrEmpty(string fileExtension)
+    public void ScriptRenameAttribute_Ctor_Should_Throw_ArgumentException_When_FileExtension_NullOrEmpty(string fileExtension)
     {
         //arrange & act
-        Action act = () => new DapperRenameAttribute(fixture.Create<string>(), fileExtension);
+        Action act = () => new ScriptRenameAttribute(fixture.Create<string>(), fileExtension);
 
         act.ShouldThrow<ArgumentException>().Message.ShouldBe("fileExtension");
     }
 
     [Theory]
     [InlineData("filename 2")]
-    public void DapperRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FilenameHasEmptySpaces(string filename)
+    public void ScriptRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FilenameHasEmptySpaces(string filename)
     {
         //arrange & act
-        Action act = () => new DapperRenameAttribute(filename, fixture.Create<string>());
+        Action act = () => new ScriptRenameAttribute(filename, fixture.Create<string>());
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldContain("can't contain spaces.");
     }
@@ -47,20 +47,20 @@ public class DapperRenameAttributeTests
     [Theory]
     [InlineData("filename1\\")]
     [InlineData("filename1/")]
-    public void DapperRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FilenameHasSlashes(string filename)
+    public void ScriptRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FilenameHasSlashes(string filename)
     {
         //arrange & act
-        Action act = () => new DapperRenameAttribute(filename, fixture.Create<string>());
+        Action act = () => new ScriptRenameAttribute(filename, fixture.Create<string>());
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("fileName can't contain any '\' or '/' characters");
     }
 
     [Theory]
     [InlineData(" s q l")]
-    public void DapperRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FileExtensionHasSlashes(string fileExtension)
+    public void ScriptRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FileExtensionHasSlashes(string fileExtension)
     {
         //arrange & act
-        Action act = () => new DapperRenameAttribute(fixture.Create<string>(), fileExtension);
+        Action act = () => new ScriptRenameAttribute(fixture.Create<string>(), fileExtension);
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("fileExtension can't contain spaces.");
     }
@@ -70,10 +70,10 @@ public class DapperRenameAttributeTests
     [InlineData(".sql")]
     [InlineData("..sql")]
     [InlineData("sql.")]
-    public void DapperRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FileExtensionHasInvalidChars(string fileExtension)
+    public void ScriptRenameAttribute_Ctor_Should_Throw_InvalidOperationException_When_FileExtensionHasInvalidChars(string fileExtension)
     {
         //arrange & act
-        Action act = () => new DapperRenameAttribute(fixture.Create<string>(), fileExtension);
+        Action act = () => new ScriptRenameAttribute(fixture.Create<string>(), fileExtension);
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("fileExtension can't contain any '\\' or '/' or '.' characters");
     }
@@ -82,10 +82,10 @@ public class DapperRenameAttributeTests
     [InlineData("filename", "sql")]
     [InlineData("query1", "sql")]
     [InlineData("query1", "mysql")]
-    public void DapperRenameAttribute_Ctor_Should_Initialize_Successfully(string filename, string fileExtension)
+    public void ScriptRenameAttribute_Ctor_Should_Initialize_Successfully(string filename, string fileExtension)
     {
         //arrange & act
-        Func<DapperRenameAttribute> act = () => new DapperRenameAttribute(filename, fileExtension);
+        Func<ScriptRenameAttribute> act = () => new ScriptRenameAttribute(filename, fileExtension);
 
         var value = act.ShouldNotThrow();
 

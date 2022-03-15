@@ -8,7 +8,7 @@ using System.IO;
 using Xunit;
 
 namespace Dapper.ExternalScripts.Tests;
-public class ExternalFileFinderTests_Ctor
+public class ScriptFinderTests_Ctor
 {
     //
     public class SomeQueriesWillNotWorkBecauseAreNOTAnnotated
@@ -16,9 +16,9 @@ public class ExternalFileFinderTests_Ctor
     }
 
     [Fact]
-    public void ExternalFileFinder_Ctor_Should_Throw_InvalidOperationException_When_TypeIsntMarked_With_DapperSearchRouteAttribute()
+    public void ScriptFinder_Ctor_Should_Throw_InvalidOperationException_When_TypeIsntMarked_With_DapperSearchRouteAttribute()
     {
-        Action act = () => new ExternalFileFinder<SomeQueriesWillNotWorkBecauseAreNOTAnnotated>();
+        Action act = () => new ScriptFinder<SomeQueriesWillNotWorkBecauseAreNOTAnnotated>();
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldContain("To use this service please Mark");
     }
@@ -27,15 +27,15 @@ public class ExternalFileFinderTests_Ctor
 
 
     //
-    [DapperSearchRoute(@"invalidPath/")]
+    [ScriptRoute(@"invalidPath/")]
     public class SomeQueriesWillNotWorkBecauseDirectoryDontExists
     {
         public virtual string? GetAll() { return null; }
     }
     [Fact]
-    public void ExternalFileFinder_Ctor_Should_Throw_DirectoryNotFoundException_When_DirectoryDontExists()
+    public void ScriptFinder_Ctor_Should_Throw_DirectoryNotFoundException_When_DirectoryDontExists()
     {
-        Action act = () => new ExternalFileFinder<SomeQueriesWillNotWorkBecauseDirectoryDontExists>();
+        Action act = () => new ScriptFinder<SomeQueriesWillNotWorkBecauseDirectoryDontExists>();
 
         act.ShouldThrow<DirectoryNotFoundException>().Message.ShouldContain("does not exists");
     }
@@ -45,16 +45,16 @@ public class ExternalFileFinderTests_Ctor
 
 
     //
-    [DapperSearchRoute(@"SQLFiles/Products")]
+    [ScriptRoute(@"SQLFiles/Products")]
     public class ProductQueriesWithNoFilesForMethods
     {
         public virtual string? GetUnknownFile() { return null; }
 
     }
     [Fact]
-    public void ExternalFileFinder_Ctor_Should_Throw_AggregateException_Due_FilesNotFound()
+    public void ScriptFinder_Ctor_Should_Throw_AggregateException_Due_FilesNotFound()
     {
-        var act = () => new ExternalFileFinder<ProductQueriesWithNoFilesForMethods>();
+        var act = () => new ScriptFinder<ProductQueriesWithNoFilesForMethods>();
 
         act.ShouldThrow<AggregateException>()
             .InnerExceptions
@@ -64,7 +64,7 @@ public class ExternalFileFinderTests_Ctor
 
 
     //
-    [DapperSearchRoute(@"SQLFiles/Products")]
+    [ScriptRoute(@"SQLFiles/Products")]
     public class ProductQueriesWithDuplicatedMethodNames
     {
         public virtual string? GetAll() { return null; }
@@ -72,9 +72,9 @@ public class ExternalFileFinderTests_Ctor
 
     }
     [Fact]
-    public void ExternalFileFinder_Ctor_Should_Throw_AggregateException_Due_DuplicatedMethodNames()
+    public void ScriptFinder_Ctor_Should_Throw_AggregateException_Due_DuplicatedMethodNames()
     {
-        var act = () => new ExternalFileFinder<ProductQueriesWithDuplicatedMethodNames>();
+        var act = () => new ScriptFinder<ProductQueriesWithDuplicatedMethodNames>();
 
         act.ShouldThrow<AggregateException>()
             .InnerExceptions
@@ -85,16 +85,16 @@ public class ExternalFileFinderTests_Ctor
 
 
     //
-    [DapperSearchRoute(@"SQLFiles/Products")]
+    [ScriptRoute(@"SQLFiles/Products")]
     public class ProductQueriesRenamedMethod
     {
-        [DapperRename("GetAll")]
+        [ScriptRename("GetAll")]
         public virtual string? GetProducts() { return null; }
     }
     [Fact]
-    public void ExternalFileFinder_Ctor_Should_Initialize_Successfully_RenamingAttributeFindingTheScriptFile()
+    public void ScriptFinder_Ctor_Should_Initialize_Successfully_RenamingAttributeFindingTheScriptFile()
     {
-        var act = () => new ExternalFileFinder<ProductQueriesRenamedMethod>();
+        var act = () => new ScriptFinder<ProductQueriesRenamedMethod>();
 
         var fileFinder = act.ShouldNotThrow();
 
@@ -104,15 +104,15 @@ public class ExternalFileFinderTests_Ctor
 
 
     //
-    [DapperSearchRoute(@"SQLFiles/Products")]
+    [ScriptRoute(@"SQLFiles/Products")]
     public class ProductQueries
     {
         public virtual string? GetAll() { return null; }
     }
     [Fact]
-    public void ExternalFileFinder_Ctor_Should_Initialize_Successfully()
+    public void ScriptFinder_Ctor_Should_Initialize_Successfully()
     {
-        var act = () => new ExternalFileFinder<ProductQueries>();
+        var act = () => new ScriptFinder<ProductQueries>();
 
         var fileFinder = act.ShouldNotThrow();
 

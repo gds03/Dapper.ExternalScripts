@@ -1,57 +1,24 @@
-﻿using Dapper.ExternalScripts.Attributes;
+﻿using Dapper.ExternalScripts.Configuration;
 
-using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Dapper.ExternalScripts;
 
 public class ScriptFinder<TSource> : IScriptFinder<TSource>
 {
-    private readonly Dictionary<string, string> _map;
+    private readonly Dictionary<string, string> _map = new Dictionary<string, string>();    // maps method names to file contents
 
-    public ScriptFinder()
+    public ScriptFinder(ScriptFinderGlobalConfiguration globalConfiguration)
     {
-        var dapperPathAttribute = typeof(TSource).GetCustomAttribute<ScriptRouteAttribute>();
-        if (dapperPathAttribute == null)
-            throw new InvalidOperationException($"To use this service please Mark {typeof(TSource).Name} class with {typeof(ScriptRouteAttribute).Name} attribute and define a location for the scripts");
-
-        string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dapperPathAttribute.Route.Replace("/", "\\"));
-        if (!Directory.Exists(directoryPath))
-            throw new DirectoryNotFoundException($"Directory {directoryPath} does not exists");
-
-
-        var map = new Dictionary<string, string>();
-
-
-        var exceptionsList = new List<Exception>();
-
-
-        foreach (var method in typeof(TSource).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        ScriptFinderTypeConfiguration<TSource>? typeConfiguration = null;
+        if (globalConfiguration == null || !globalConfiguration.TryGetConfigurationFor<TSource>(out typeConfiguration))
         {
-            var fileName = method.Name;
-            var extension = "sql";
-            var dapperRenameAttribute = method.GetCustomAttribute<ScriptRenameAttribute>();
-            if(dapperRenameAttribute != null)
-            {
-                fileName = dapperRenameAttribute.FileName;
-                extension = dapperRenameAttribute.FileExtension;
-            }
-
-            Exception? fileException = GetFileContentsForMethod(GetFilePath(directoryPath, fileName, extension), out var fileContents);
-            if (fileException != null)
-                exceptionsList.Add(fileException);
-
-            else
-                if (!TryAdd(map, method.Name, fileContents!, out Exception? exception))
-                    exceptionsList.Add(exception!);
+            throw new InvalidOperationException($"There is no configuration for type '{typeof(TSource)}' present in '{typeof(ScriptFinderGlobalConfiguration)}'");
         }
 
-        if (exceptionsList.Any())
-            throw new AggregateException(exceptionsList);
-
-        _map = map;
+        _map = MapFromConfiguration(typeConfiguration!);
     }
+
 
     public string GetCurrentScript([CallerMemberName] string? methodName = null)
     {
@@ -68,35 +35,76 @@ public class ScriptFinder<TSource> : IScriptFinder<TSource>
     }
 
     #region Helpers
-    private static string GetFilePath(string directoryPath, string fileName, string fileExtension) => Path.ChangeExtension(Path.Combine(directoryPath, fileName), fileExtension);
 
-    private static Exception? GetFileContentsForMethod(string finalFilePath, out string? fileContents)
+    private Dictionary<string, string> MapFromConfiguration(ScriptFinderTypeConfiguration<TSource> typeConfiguration)
     {
-        fileContents = null;
-        try
+        string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, typeConfiguration.Route!.Replace("/", "\\"));
+        if (!Directory.Exists(directoryPath))
+            throw new DirectoryNotFoundException($"Directory {directoryPath} does not exists");
+
+
+        var map = new Dictionary<string, string>();
+
+
+        var exceptionsList = new List<Exception>();
+
+        foreach(var methodKVP in typeConfiguration.MethodMaps)
         {
-            fileContents = File.ReadAllText(finalFilePath);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            return ex;
-        }
-    }
-    private static bool TryAdd(Dictionary<string, string> mapping, string key, string fileContents, out Exception? exception)
-    {
-        exception = null;
-        try
-        {
-            mapping.Add(key, fileContents);
-            return true;
+            var fileName = methodKVP.Value;
+            var fileExtension = typeConfiguration.ScriptsExtension;
+
+            Exception? fileException = GetFileContentsForMethod(GetFilePath(directoryPath, fileName, fileExtension!), out var fileContents);
+            if (fileException != null)
+                exceptionsList.Add(fileException);
+
+            else
+                if (!TryAdd(map, methodKVP.Key, fileContents!, out Exception? exception))
+                exceptionsList.Add(exception!);
+
         }
 
-        catch (Exception ex)
+        if (exceptionsList.Any())
+            throw new AggregateException(exceptionsList);
+
+        return map;
+
+        #region helpers
+
+
+
+        static string GetFilePath(string directoryPath, string fileName, string fileExtension) =>
+            Path.ChangeExtension(Path.Combine(directoryPath, fileName), fileExtension);
+
+        static Exception? GetFileContentsForMethod(string finalFilePath, out string? fileContents)
         {
-            exception = ex;
-            return false;
+            fileContents = null;
+            try
+            {
+                fileContents = File.ReadAllText(finalFilePath);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return ex;
+            }
         }
+        static bool TryAdd(Dictionary<string, string> mapping, string key, string fileContents, out Exception? exception)
+        {
+            exception = null;
+            try
+            {
+                mapping.Add(key, fileContents);
+                return true;
+            }
+
+            catch (Exception ex)
+            {
+                exception = ex;
+                return false;
+            }
+        }
+
+        #endregion
     }
 
     #endregion

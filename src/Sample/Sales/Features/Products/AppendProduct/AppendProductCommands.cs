@@ -1,12 +1,9 @@
 ﻿using System.Data.SqlClient;
 using System.Data;
-using Dapper.ExternalScripts.Attributes;
 using Dapper.ExternalScripts;
 using Dapper;
 
 namespace Sales.Features.Products.AppendProduct;
-
-[ScriptRoute("Features/Products/AppendProduct/SQL")]
 public class AppendProductCommands
 {
     private readonly IScriptFinder<AppendProductCommands> scriptFinder;
@@ -18,7 +15,6 @@ public class AppendProductCommands
         this.salesConnectionString = salesConnectionString;
     }
 
-    [ScriptRename("InsertOneProduct")]
     public async Task<int> Insert(string name, int quantity)
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);

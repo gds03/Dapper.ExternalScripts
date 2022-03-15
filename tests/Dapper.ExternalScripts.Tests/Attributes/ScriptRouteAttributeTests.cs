@@ -15,7 +15,7 @@ public class ScriptRouteAttributeTests
     public void ScriptRouteAttribute_Ctor_Should_Throw_ArgumentException_When_NullOrEmpty(string input)
     {
          //arrange & act
-         Action act = () => new ScriptRouteAttribute(input);
+         Action act = () => new ScriptsRouteAttribute(input);
 
         act.ShouldThrow<ArgumentException>().Message.ShouldBe("route");
     }
@@ -25,7 +25,7 @@ public class ScriptRouteAttributeTests
     public void ScriptRouteAttribute_Ctor_Should_Throw_InvalidOperationException_When_route_contains_whitespace(string input)
     {
         //arrange & act
-        Action act = () => new ScriptRouteAttribute(input);
+        Action act = () => new ScriptsRouteAttribute(input);
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("route can't contain spaces.");
     }
@@ -36,7 +36,7 @@ public class ScriptRouteAttributeTests
     public void ScriptRouteAttribute_Ctor_Should_Throw_InvalidOperationException_When_route_contains_anyBackwardSlash(string input)
     {
         //arrange & act
-        Action act = () => new ScriptRouteAttribute(input);
+        Action act = () => new ScriptsRouteAttribute(input);
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("route can't contain any backward slash. Use forward slash");
     }
@@ -46,7 +46,7 @@ public class ScriptRouteAttributeTests
     public void ScriptRouteAttribute_Ctor_Should_Throw_InvalidOperationException_When_route_contains_OnlyOneLevelFolder(string input)
     {
         //arrange & act
-        Action act = () => new ScriptRouteAttribute(input);
+        Action act = () => new ScriptsRouteAttribute(input);
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("route must have at least one '/' to specify the first level folder");
     }
@@ -56,7 +56,7 @@ public class ScriptRouteAttributeTests
     public void ScriptRouteAttribute_Ctor_Should_Throw_InvalidOperationException_When_route_contains_firstcharSlash(string input)
     {
         //arrange & act
-        Action act = () => new ScriptRouteAttribute(input);
+        Action act = () => new ScriptsRouteAttribute(input);
 
         act.ShouldThrow<InvalidOperationException>().Message.ShouldBe("route first char must start with the directory name and not the '/' character");
     }
@@ -66,7 +66,7 @@ public class ScriptRouteAttributeTests
     public void ScriptRouteAttribute_Ctor_Should_Throw_Initialize_Successfully(string input)
     {
         //arrange & act
-        Func<ScriptRouteAttribute> act = () => new ScriptRouteAttribute(input);
+        Func<ScriptsRouteAttribute> act = () => new ScriptsRouteAttribute(input);
 
         var value = act.ShouldNotThrow();
 

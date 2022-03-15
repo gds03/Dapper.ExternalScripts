@@ -3,11 +3,9 @@ using System.Data.SqlClient;
 
 using Dapper;
 using Dapper.ExternalScripts;
-using Dapper.ExternalScripts.Attributes;
 
 namespace Sales.Features.Products.DisplayProducts;
 
-[ScriptRoute("Features/Products/DisplayProducts/SQL")]
 public class DisplayProductsQueries
 {
     private readonly IScriptFinder<DisplayProductsQueries> scriptFinder;
@@ -26,7 +24,6 @@ public class DisplayProductsQueries
         return await scriptFinder._((sql) => connection.QueryAsync<DisplayProductVM>(sql));
     }
 
-    [ScriptRename("GetOne")]
     public async Task<DisplayProductVM> GetSingle(int id)
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);

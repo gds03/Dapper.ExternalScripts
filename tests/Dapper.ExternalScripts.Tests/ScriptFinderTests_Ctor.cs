@@ -27,7 +27,7 @@ public class ScriptFinderTests_Ctor
 
 
     //
-    [ScriptRoute(@"invalidPath/")]
+    [ScriptsRoute(@"invalidPath/")]
     public class SomeQueriesWillNotWorkBecauseDirectoryDontExists
     {
         public virtual string? GetAll() { return null; }
@@ -45,7 +45,7 @@ public class ScriptFinderTests_Ctor
 
 
     //
-    [ScriptRoute(@"SQLFiles/Products")]
+    [ScriptsRoute(@"SQLFiles/Products")]
     public class ProductQueriesWithNoFilesForMethods
     {
         public virtual string? GetUnknownFile() { return null; }
@@ -64,7 +64,7 @@ public class ScriptFinderTests_Ctor
 
 
     //
-    [ScriptRoute(@"SQLFiles/Products")]
+    [ScriptsRoute(@"SQLFiles/Products")]
     public class ProductQueriesWithDuplicatedMethodNames
     {
         public virtual string? GetAll() { return null; }
@@ -85,7 +85,7 @@ public class ScriptFinderTests_Ctor
 
 
     //
-    [ScriptRoute(@"SQLFiles/Products")]
+    [ScriptsRoute(@"SQLFiles/Products")]
     public class ProductQueriesRenamedMethod
     {
         [ScriptRename("GetAll")]
@@ -104,7 +104,7 @@ public class ScriptFinderTests_Ctor
 
 
     //
-    [ScriptRoute(@"SQLFiles/Products")]
+    [ScriptsRoute(@"SQLFiles/Products")]
     public class ProductQueries
     {
         public virtual string? GetAll() { return null; }

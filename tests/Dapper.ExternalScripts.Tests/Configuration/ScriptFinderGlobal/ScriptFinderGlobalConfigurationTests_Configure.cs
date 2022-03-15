@@ -30,7 +30,6 @@ public partial class ScriptFinderGlobalConfigurationTests
             .ShouldContain("Invalid configuration. Errors are");
     }
 
-
     [Fact]
     public void ScriptFinderTypeConfiguration_Configure_Should_RunSuccessfully()
     {

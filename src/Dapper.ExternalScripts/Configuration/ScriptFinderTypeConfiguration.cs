@@ -84,6 +84,9 @@ public class ScriptFinderTypeConfiguration<TSource>
         foreach (var method in typeof(TSource).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
             var methodName = method.Name;
+            if(map.ContainsKey(methodName))
+                throw new InvalidOperationException("Methods overloading are not supported in this version.");
+
             map[methodName] = new TypeMethodConfiguration() { RenamedName = methodName };
         }
 

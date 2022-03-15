@@ -8,20 +8,36 @@ Wiring up on Program.cs or Startup.cs
 
 ```csharp
 
-builder.Services.AddDapperExternalScripts();
+ serviceCollection.AddDapperExternalScripts(options =>
+            options
+                .Configure<DisplayProductsQueries>(x =>
+                {
+                    x
+                        .SetRoute("Features/Products/DisplayProducts/SQL")
+                        .Rename(nameof(DisplayProductsQueries.GetSingle), "GetOne")
+                        .SetExtension(nameof(DisplayProductsQueries.GetAll), "sql");
+                })
+                .Configure<AppendProductCommands>(x =>
+                {
+                    x
+                        .SetRoute("Features/Products/AppendProduct/SQL")
+                        .Rename(nameof(AppendProductCommands.Insert), "InsertOneProduct");
+                })
+
+        );
    
 ```
 
 On your repositories, commands or queries (mostly)
 ```csharp
 
-[DapperSearchRoute("Features/Products/DisplayProducts/SQL")]
+
 public class DisplayProductsQueries
 {
-    private readonly IExternalFileFinder<DisplayProductsQueries> scriptFinder;
+    private readonly IScriptFinder<DisplayProductsQueries> scriptFinder;
     private readonly SalesConnectionString salesConnectionString;
 
-    public DisplayProductsQueries(IExternalFileFinder<DisplayProductsQueries> scriptFinder, SalesConnectionString salesConnectionString)
+    public DisplayProductsQueries(IScriptFinder<DisplayProductsQueries> scriptFinder, SalesConnectionString salesConnectionString)
     {
         this.scriptFinder = scriptFinder;
         this.salesConnectionString = salesConnectionString;
@@ -31,15 +47,14 @@ public class DisplayProductsQueries
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await connection.QueryAsync<DisplayProductVM>(scriptFinder.GetCurrentScript()); // instead of hardcoded SQL it already loaded GetAll.sql from the folder above
+        return await scriptFinder._((sql) => connection.QueryAsync<DisplayProductVM>(sql)); // instead of hardcoded SQL it already loaded GetAll.sql from the folder above
     }
 
-    [DapperRename("GetOne")]
     public async Task<DisplayProductVM> GetSingle(int id)
     {
         using IDbConnection connection = new SqlConnection(salesConnectionString.Value);
 
-        return await connection.QuerySingleAsync<DisplayProductVM>(scriptFinder.GetCurrentScript(), new { id = id }); // instead of hardcoded SQL it already loaded GetOne.sql from the folder above
+        return await scriptFinder._(sql => connection.QuerySingleAsync<DisplayProductVM>(sql, new { id = id })); // instead of hardcoded SQL it already loaded GetOne.sql from the folder above
     }
 }
 
@@ -48,5 +63,11 @@ public class DisplayProductsQueries
 
 The way its working is similiar with ILogger<T> regarding registration.
    
-It's registered as a singleton and the first time the type is referenced (in this case: IExternalFileFinder<DisplayProductsQueries>) it will load from the FS.
+It's registered as a singleton and the first time the type is referenced (in this case: IScriptFinder<DisplayProductsQueries>) it will load from the FS.
 From there on, the script is in the cache and thats all.
+   
+For mapping the types use the FluentAPI when registering the services. 
+   - The required argument is Route
+   - The default extension is sql
+   - You can rename methods to files with the use of Rename method
+   - One caveat is that overload is not supported.
